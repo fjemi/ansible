@@ -1,4 +1,4 @@
- # install/remove aur helper packages
+# install/remove aur helper packages
  
  - name: remove octopi, and install pamac/yay
    hosts: localhost
@@ -7,6 +7,17 @@
    become_method: sudo
 
    tasks:
+   
+     - name: full system upgrade "pacman -Syu"
+       pacman:
+         update_cache: yes
+         upgrade: yes
+       register: out
+       
+     - debug: 
+         var: out
+       changed_when: False
+
    
      - name: kill octopi and dependencies
        shell: pkill -f octopi
@@ -20,17 +31,10 @@
        
      - name: remove octopi and dependencies
        pacman:
-         name: "{{ item }}"
+         name: ['octopi', 'octopi-pacmanhelper', 'octopi-repoeditor', 'alpm-octopi-utils', 'octopi-cachecleaner', 'octopi-notifier-frameworks']
          state: absent
          force: yes
-         recurse: yes
-       with item:
-         - octopi
-         - octopi-pacmanhelper
-         - octopi-repoeditor
-         - alpm-octopi-utils
-         - octopi-cachecleaner
-         - octopi-notifier-frameworks
+         recurse: yes         
        register: out
        
      - debug: 
@@ -38,31 +42,17 @@
        changed_when: False
        
          
-     - name: install pamac/yay packages
+     - name: install pamac, yay, and git packages
        pacman:
-         name: "{{ item }}"
+         name: ['pamac', 'yay', 'git']
          state: present
-       with item:
-         - pamac
-         - yay
        register: out
        
      - debug: 
          var: out
-       changed_when: False      
+       changed_when: false      
        
          
-     - name: full system upgrade "pacman -Syu"
-       pacman:
-         update_cache: yes
-         upgrade: yes
-       register: out
-       
-     - debug: 
-         var: out
-       changed_when: False
-       
-       
      # set yay as the aur helper  
      - user: name=aur_builder
      
@@ -76,4 +66,4 @@
        
      - debug: 
          var: out
-       changed_when: False       
+       changed_when: False 
