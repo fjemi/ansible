@@ -20,10 +20,17 @@
        
      - name: remove octopi and dependencies
        pacman:
-         name: octopi,octopi-pacmanhelper,octopi-repoeditor,alpm-octopi-utils,octopi-cachecleaner,octopi-notifier-frameworks
+         name: "{{ item }}"
          state: absent
          force: yes
          recurse: yes
+       with item:
+         - octopi
+         - octopi-pacmanhelper
+         - octopi-repoeditor
+         - alpm-octopi-utils
+         - octopi-cachecleaner
+         - octopi-notifier-frameworks
        register: out
        
      - debug: 
@@ -33,8 +40,11 @@
          
      - name: install pamac/yay packages
        pacman:
-         name: pamac, yay
+         name: "{{ item }}"
          state: present
+       with item:
+         - pamac
+         - yay
        register: out
        
      - debug: 
