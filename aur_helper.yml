@@ -2,50 +2,78 @@
  
  - name: remove octopi, and install pamac/yay
    hosts: localhost
-   become: yes
    vars:
      tmp_dir: /home/femij/Desktop/playbooks/ansible-aur
    tasks:
+   
      - name: full system upgrade "pacman -Syu"
        pacman:
          update_cache: yes
          upgrade: yes
+       become: yes
        register: out
      - debug: 
          var: out
        changed_when: False
-     - name: kill octopi and dependencies
+       
+     # kill running octopiand dependencies processes  
+     - name: kill octopi
+       become: yes
        shell: pkill -f octopi
        register: out
        ignore_errors: True
      - debug: 
          var: out
        changed_when: False
-     - name: remove octopi and dependencies
+       
+       # uninstall octopi and dependencies
+     - name: remove octopi
        pacman:
          name: ['octopi', 'octopi-pacmanhelper', 'octopi-repoeditor', 'alpm-octopi-utils', 'octopi-cachecleaner', 'octopi-notifier-frameworks']
          state: absent
          force: yes
          recurse: yes         
+       become: yes
        register: out
      - debug: 
          var: out
        changed_when: False
-     - name: install pamac, yay, and git packages
+       
+       # 
+     - name: install pamac and git packages
        pacman:
-         name: ['pamac', 'yay', 'git']
+         name: ['pamac', 'git']
          state: present
+       become: yes
        register: out
      - debug: 
          var: out
-       changed_when: false      
-     - user: name=aur_builder
-     - lineinfile:
-         path: /etc/sudoers.d/aur_builder-allow-to-sudo-pacman
-         state: present
-         line: "aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman"
-         validate: /usr/sbin/visudo -cf %s
-         create: yes
+       changed_when: false 
+       
+       
+     - name: clone the ansible-aur repository
+       git:
+         repo: 'https://github.com/kewlfft/ansible-aur.git'
+         dest: ~/.ansible/plugins/modules/aur
+         clone: no
+         update: yes
+       become: yes
+       register: out
+       
+     - debug: 
+         var: out
+       changed_when: False       
+       
+       
+     # install yay using makepkg, skip if yay is already installed
+     - name: install yay
+       aur: name=yay use=makepkg skip_installed=true
+       become: yes
+       become_user: aur_builder
+       register: out
+     - debug: 
+         var: out
+       changed_when: False 
        register: out
      - debug: 
          var: out
