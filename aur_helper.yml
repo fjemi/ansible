@@ -1,0 +1,19 @@
+# Install pamac and yay. Remove octopi
+
+- name: upgrade all packages "pacman -Syu"
+  become: yes
+  pacman:
+    update_cache: yes
+    upgrade: yes
+
+# aur helpers
+- name: recursively remove octopi packages
+  pacman:
+    name: octopi
+    state: absent
+    recurse: yes
+
+- name: install pamac and yay
+  pacman:
+    name: pamac, yay
+    state: present
