@@ -1,0 +1,90 @@
+# install/remove software
+ 
+ - name: install/remove browsers
+   hosts: localhost
+   become: yes
+   tasks:  
+   
+       # install browsers
+     - name: install chromium
+       pacman:
+         name: ['chromium']
+         state: present
+         recurse: yes
+       register: out
+     - debug: 
+         var: out 
+         
+     # install yay using makepkg, skip if yay is already installed
+     - name: install google-chrome-beta
+       aur: 
+         name: ['google-chrome-beta', 'tor-browser-en'] 
+         use: makepkg 
+         skip_installed: true
+       become_user: aur_builder
+       register: out
+     - debug: 
+         var: out 
+
+         
+     # install yay using makepkg, skip if yay is already installed
+     - name: install aur browsers
+       aur: 
+         name: ['google-chrome-beta'] 
+         use: yay 
+         skip_installed: true
+         aur_only: yes
+       #shell: --syncdeps
+       #command:  --syncdeps --install --noconfirm --needed
+       become: no
+       register: out
+     - debug: 
+         var: out 
+
+
+     - name: prinst system statistics
+       shell: yay -Ps
+       become: no
+       register: out
+     - debug:
+          var: out
+         
+       # install python packages
+     - name: install python web development packages
+       pacman:
+         name: ['python', 'python-flask', 'python-flask-migrate', 'python-flask-marshmallow', 'python-flask-restful', 'python-flask-wtf', 'python-sqlalchemy', 'python-django']
+         state: present
+         recurse: yes
+       register: out
+     - debug: 
+         var: out
+
+     - name: install python data science packages
+       pacman:
+         name: ['python-matplotlib', 'python-numpy', 'python-pandas']
+         state: present
+         recurse: yes
+       register: out
+     - debug: 
+         var: out
+         
+     - name: remove python installer (pip) packake
+       pacman:
+         name: ['python-pip']
+         state: absent
+         recurse: yes
+         force: yes
+       register: out
+     - debug: 
+         var: out
+         
+         
+       # install text editors
+     - name: install text editors
+       pacman:
+         name: ['gedit']
+         state: present
+         recurse: yes
+       register: out
+     - debug: 
+         var: out
