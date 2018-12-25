@@ -3,32 +3,24 @@
  - name: remove octopi, and install pamac/yay
    hosts: localhost
    become: yes
-   become_user: root
-   become_method: sudo
-
+   vars:
+     tmp_dir: /home/femij/Desktop/playbooks/ansible-aur
    tasks:
-   
      - name: full system upgrade "pacman -Syu"
        pacman:
          update_cache: yes
          upgrade: yes
        register: out
-       
      - debug: 
          var: out
        changed_when: False
-
-   
      - name: kill octopi and dependencies
        shell: pkill -f octopi
        register: out
        ignore_errors: True
-       
      - debug: 
          var: out
        changed_when: False
-     
-       
      - name: remove octopi and dependencies
        pacman:
          name: ['octopi', 'octopi-pacmanhelper', 'octopi-repoeditor', 'alpm-octopi-utils', 'octopi-cachecleaner', 'octopi-notifier-frameworks']
@@ -36,26 +28,18 @@
          force: yes
          recurse: yes         
        register: out
-       
      - debug: 
          var: out
        changed_when: False
-       
-         
      - name: install pamac, yay, and git packages
        pacman:
          name: ['pamac', 'yay', 'git']
          state: present
        register: out
-       
      - debug: 
          var: out
        changed_when: false      
-       
-         
-     # set yay as the aur helper  
      - user: name=aur_builder
-     
      - lineinfile:
          path: /etc/sudoers.d/aur_builder-allow-to-sudo-pacman
          state: present
@@ -63,7 +47,6 @@
          validate: /usr/sbin/visudo -cf %s
          create: yes
        register: out
-       
      - debug: 
          var: out
        changed_when: False 
