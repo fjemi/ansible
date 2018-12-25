@@ -1,19 +1,69 @@
-# Install pamac and yay. Remove octopi
+ # install/remove aur helper packages
+ 
+ - name: remove octopi, and install pamac/yay
+   hosts: localhost
+   become: yes
+   become_user: root
+   become_method: sudo
 
-- name: upgrade all packages "pacman -Syu"
-  become: yes
-  pacman:
-    update_cache: yes
-    upgrade: yes
-
-# aur helpers
-- name: recursively remove octopi packages
-  pacman:
-    name: octopi
-    state: absent
-    recurse: yes
-
-- name: install pamac and yay
-  pacman:
-    name: pamac, yay
-    state: present
+   tasks:
+   
+     - name: kill octopi and dependencies
+       shell: pkill -f octopi
+       register: out
+       ignore_errors: True
+       
+     - debug: 
+         var: out
+       changed_when: False
+     
+       
+     - name: remove octopi and dependencies
+       pacman:
+         name: octopi,octopi-pacmanhelper,octopi-repoeditor,alpm-octopi-utils,octopi-cachecleaner,octopi-notifier-frameworks
+         state: absent
+         force: yes
+         recurse: yes
+       register: out
+       
+     - debug: 
+         var: out
+       changed_when: False
+       
+         
+     - name: install pamac/yay packages
+       pacman:
+         name: pamac, yay
+         state: present
+       register: out
+       
+     - debug: 
+         var: out
+       changed_when: False      
+       
+         
+     - name: full system upgrade "pacman -Syu"
+       pacman:
+         update_cache: yes
+         upgrade: yes
+       register: out
+       
+     - debug: 
+         var: out
+       changed_when: False
+       
+       
+     # set yay as the aur helper  
+     - user: name=aur_builder
+     
+     - lineinfile:
+         path: /etc/sudoers.d/aur_builder-allow-to-sudo-pacman
+         state: present
+         line: "aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman"
+         validate: /usr/sbin/visudo -cf %s
+         create: yes
+       register: out
+       
+     - debug: 
+         var: out
+       changed_when: False       
