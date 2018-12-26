@@ -1,0 +1,45 @@
+# install/remove software
+ 
+ - name: install packages from AUR
+   hosts: localhost
+   # list packages and git
+   vars:
+     packages:
+       tor: 
+         base: tor-browser-git
+         url: https://aur.archlinux.org/tor-browser-en.git
+         keys: EB774491D9FF06E2
+       chrome-beta:
+         base: google-chrome-beta
+         url: https://aur.archlinux.org/google-chrome-beta.git
+   tasks:  
+     # with predefined vars         
+     - name: install AUR packages
+       debug:
+         msg: "Package {{ item.value.base }} is being installed {{ item.value.base }}"
+       #git:
+        # repo: 
+       with_dict:
+         - "{{ packages }}"
+         
+         
+   
+   
+       # 
+#     - name: install tor browser
+#       shell: | 
+#         cd /tmp/tor-browser-en
+ #         ls -l
+#         makepkg -si
+#       become: no
+  #     register: out
+ #    - debug: 
+#         var: out   
+   
+   
+       # 
+#     - name: install chrome and chromium
+#       shell: yay -Syu
+#       register: out
+#     - debug: 
+#         var: out
