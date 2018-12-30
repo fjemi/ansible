@@ -1,90 +1,79 @@
 # install/remove software
  
- - name: install/remove browsers
+ - name: install/remove packages
    hosts: localhost
    become: yes
+   vars:
+     tmp_dir: /home/femij/Desktop/playbooks/ansible-aur
    tasks:  
    
-       # install browsers
-     - name: install chromium
+     - name: full system upgrade "pacman -Syu"
        pacman:
-         name: ['chromium']
+         update_cache: yes
+         upgrade: yes
+       register: system_upgrade
+       ignore_errors: True
+     - debug: 
+         var: system_upgrade
+       when: system_upgrade is failed   
+   
+     - name: install packages 
+       pacman:
+         name: "{{ item.name }}"
          state: present
-         recurse: yes
-       register: out
-     - debug: 
-         var: out 
+       register: pkg_install
+       ignore_errors: True
+       loop:
+         - { name: 'chromium' }
+         - { name: 'gedit' }
+         - { name: 'python' }
+         - { name: 'python-flask' } 
+         - { name: 'python-flask-migrate' }
+         - { name: 'python-flask-marshmallow' }
+         - { name: 'python-flask-restful' }
+         - { name: 'python-flask-wtf' }
+         - { name: 'python-sqlalchemy' }
+         - { name: 'python-django' }
+         - { name: 'python-matplotlib' }
+         - { name: 'python-numpy' }
+         - { name: 'python-pandas' }
+         - { name: 'qemu' }
+         - { name: 'qemu-arch-extra' }
+         - { name: 'qemu-block-gluster' }
+         - { name: 'qemu-block-iscsi' }
+         - { name: 'qemu-block-rbd' }
+         - { name: 'samba' }
+         - { name: 'libvirt' }
+         - { name: 'ansible' }
+         - { name: 'etcher' }
+         - { name: 'android-tools' }
+         - { name: 'java-openjfx' }
+         - { name: 'papirus-icon-theme' }
+         - { name: 'gimp' }
+         - { name: 'transmission-gtk' }
+         - { name: 'gufw' }
+         - { name: 'ufw' }
+         - { name: 'yay' }
+         - { name: 'kodi' }
+         - { name: 'etckeeper' }
+         - { name: 'python' }
          
-     # install yay using makepkg, skip if yay is already installed
-     - name: install google-chrome-beta
-       aur: 
-         name: ['google-chrome-beta', 'tor-browser-en'] 
-         use: makepkg 
-         skip_installed: true
-       become_user: aur_builder
-       register: out
      - debug: 
-         var: out 
+         var: pkg_install
+       when: pkg_install is failed
 
-         
-     # install yay using makepkg, skip if yay is already installed
-     - name: install aur browsers
-       aur: 
-         name: ['google-chrome-beta'] 
-         use: yay 
-         skip_installed: true
-         aur_only: yes
-       #shell: --syncdeps
-       #command:  --syncdeps --install --noconfirm --needed
-       become: no
-       register: out
-     - debug: 
-         var: out 
-
-
-     - name: prinst system statistics
-       shell: yay -Ps
-       become: no
-       register: out
-     - debug:
-          var: out
-         
-       # install python packages
-     - name: install python web development packages
+     - name: remove packages
        pacman:
-         name: ['python', 'python-flask', 'python-flask-migrate', 'python-flask-marshmallow', 'python-flask-restful', 'python-flask-wtf', 'python-sqlalchemy', 'python-django']
-         state: present
-         recurse: yes
-       register: out
-     - debug: 
-         var: out
-
-     - name: install python data science packages
-       pacman:
-         name: ['python-matplotlib', 'python-numpy', 'python-pandas']
-         state: present
-         recurse: yes
-       register: out
-     - debug: 
-         var: out
-         
-     - name: remove python installer (pip) packake
-       pacman:
-         name: ['python-pip']
+         name: "{{ item.name }}"
          state: absent
          recurse: yes
          force: yes
-       register: out
-     - debug: 
-         var: out
+       register: pkg_remove
+       ignore_errors: True
+       loop:
+         - { name: 'python-pip'}
+         - { name: 'qbittorrent' }         
          
-         
-       # install text editors
-     - name: install text editors
-       pacman:
-         name: ['gedit']
-         state: present
-         recurse: yes
-       register: out
      - debug: 
-         var: out
+         var: pkg_remove
+       when: pkg_remove is failed
