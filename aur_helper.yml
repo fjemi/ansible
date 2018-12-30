@@ -1,80 +1,83 @@
-# install/remove aur helper packages
+# ansible playbook to install and remove aur helper packages
  
  - name: remove octopi, and install pamac/yay
    hosts: localhost
-   vars:
-     tmp_dir: /home/femij/Desktop/playbooks/ansible-aur
+   become: yes
    tasks:
    
      - name: full system upgrade "pacman -Syu"
        pacman:
          update_cache: yes
          upgrade: yes
-       become: yes
-       register: out
-     - debug: 
-         var: out
-       changed_when: False
-       
-     # kill running octopiand dependencies processes  
-     - name: kill octopi
-       become: yes
-       shell: pkill -f octopi
-       register: out
+       register: system_upgrade
        ignore_errors: True
      - debug: 
-         var: out
-       changed_when: False
+         var: system_upgrade
+       when: system_upgrade is failed
+         
+     - name: kill octopi and dependencies
+       shell: pkill -f octopi
+       register: kill_process
+       ignore_errors: True
+     - debug: 
+         var: kill_process
+       when: kill_process is failed
        
-       # uninstall octopi and dependencies
-     - name: remove octopi
+     - name: remove octopi package and dependencies
        pacman:
-         name: ['octopi', 'octopi-pacmanhelper', 'octopi-repoeditor', 'alpm-octopi-utils', 'octopi-cachecleaner', 'octopi-notifier-frameworks']
+         name: "{{ item.name }}"
          state: absent
          force: yes
          recurse: yes         
-       become: yes
-       register: out
+       register: pkg_remove
+       ignore_errors: True
+       loop:
+         - { name: 'octopi' }
+         - { name: 'octopi-pacmanhelper' }
+         - { name: 'octopi-repoeditor' }
+         - { name: 'alpm-octopi-utils' }
+         - { name: 'octopi-cachecleaner' }
+         - { name: 'octopi-notifier-frameworks' }
      - debug: 
-         var: out
-       changed_when: False
+         var:
+           pkg_remove.stdout
+       when: pkg_remove is failed
        
-       # 
      - name: install pamac and git packages
        pacman:
-         name: ['pamac', 'git']
+         name: "{{ item.name }}"
          state: present
-       become: yes
-       register: out
+       register: pkg_install
+       ignore_errors: True
+       loop:
+         - { name: pamac }
+         - { name: git }
+         - { name: base-devel }
      - debug: 
-         var: out
-       changed_when: false 
-       
+         var: pkg_install
+       when: pkg_install is failed 
        
      - name: clone the ansible-aur repository
        git:
-         repo: 'https://github.com/kewlfft/ansible-aur.git'
+         repo: "{{ item.repo }}"
          dest: ~/.ansible/plugins/modules/aur
          clone: no
          update: yes
-       become: yes
-       register: out
-       
+       register: git_clone
+       ignore_errors: True
+       loop: 
+         - { name: 'aur', repo: 'https://github.com/kewlfft/ansible-aur.git' }
      - debug: 
-         var: out
-       changed_when: False       
+         var: git_clone
+       when: git_clone is failed       
        
-       
-     # install yay using makepkg, skip if yay is already installed
-     - name: install yay
-       aur: name=yay use=makepkg skip_installed=true
-       become: yes
-       become_user: aur_builder
-       register: out
-     - debug: 
-         var: out
-       changed_when: False 
-       register: out
-     - debug: 
-         var: out
-       changed_when: False 
+#     - name: install yay using makepkg
+#       aur: 
+#          name: yay 
+#          use: makepkg 
+#          skip_installed: true
+#       become_user: aur_builder
+#       register: out
+#     - debug: 
+#         var: out
+#       when: out is failed 
