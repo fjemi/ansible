@@ -1,0 +1,32 @@
+# install/remove aur packages
+ 
+ - name: install/remove aur packages
+   hosts: local
+   become: no
+   
+   tasks: 
+
+#       shell: git clone https://github.com/kewlfft/ansible-aur.git ~/.ansible/plugins/modules/aur  
+     - name: upgrade aur
+       aur:
+         upgrade: yes
+       ignore_errors: True
+       register: aur_upgrade
+     - debug:
+         var: aur_upgrade
+       when: aur_upgrade is failed
+
+     - name: install aur packages
+       aur:
+         use: makepkg
+         name: "{{ item.name }}"
+         skip_installed: yes
+         skip_pgp_check: yes
+       ignore_errors: True  
+       loop: 
+         - { name: 'dropbox' }
+         - { name: 'google-musicmanager' }
+         - { name: 'google-chrome' } 
+         - { name: 'python-undervolt' } 
+         - { name: 'tor-browser-en' } 
+         - { name: 'nodejs-resume-cli' }
