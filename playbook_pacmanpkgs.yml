@@ -61,7 +61,10 @@
          - { name: 'plasma5-applets-redshift-control' }
          # themes
          - { name: 'papirus-icon-theme' }
-         #- { name: 'python' }
+         - { name: 'paper-icon-theme-git' }
+         - { name: 'numix-gtk-theme' }
+         - { name: 'numix-manjaro-themes' }
+         - { name: 'gtk-engine-murrine' }
          
      - name: remove packages
        pacman:
