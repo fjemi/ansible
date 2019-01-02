@@ -1,10 +1,8 @@
 # install/remove software
  
- - name: install/remove packages
-   hosts: localhost
+ - name: install/remove official repository packages
+   hosts: local
    become: yes
-   vars:
-     tmp_dir: /home/femij/Desktop/playbooks/ansible-aur
    tasks:  
    
      - name: full system upgrade "pacman -Syu"
@@ -21,11 +19,18 @@
        pacman:
          name: "{{ item.name }}"
          state: present
-       register: pkg_install
        ignore_errors: True
        loop:
+         # web
          - { name: 'chromium' }
+         - { name: 'transmission-gtk' }
+         - { name: 'gufw' }
+         - { name: 'ufw' }
+         - { name: 'kodi' }         
+         # text editors
+         - { name: 'gimp' }
          - { name: 'gedit' }
+         # programmin
          - { name: 'python' }
          - { name: 'python-flask' } 
          - { name: 'python-flask-migrate' }
@@ -37,6 +42,8 @@
          - { name: 'python-matplotlib' }
          - { name: 'python-numpy' }
          - { name: 'python-pandas' }
+         - { name: 'jupyter-notebook' }
+         # virtualization
          - { name: 'qemu' }
          - { name: 'qemu-arch-extra' }
          - { name: 'qemu-block-gluster' }
@@ -44,36 +51,25 @@
          - { name: 'qemu-block-rbd' }
          - { name: 'samba' }
          - { name: 'libvirt' }
+         # system configuration
+         - { name: 'etckeeper' }
          - { name: 'ansible' }
          - { name: 'etcher' }
          - { name: 'android-tools' }
          - { name: 'java-openjfx' }
+         - { name: 'redshift' }
+         - { name: 'plasma5-applets-redshift-control' }
+         # themes
          - { name: 'papirus-icon-theme' }
-         - { name: 'gimp' }
-         - { name: 'transmission-gtk' }
-         - { name: 'gufw' }
-         - { name: 'ufw' }
-         - { name: 'yay' }
-         - { name: 'kodi' }
-         - { name: 'etckeeper' }
-         - { name: 'python' }
+         #- { name: 'python' }
          
-     - debug: 
-         var: pkg_install
-       when: pkg_install is failed
-
      - name: remove packages
        pacman:
          name: "{{ item.name }}"
          state: absent
          recurse: yes
          force: yes
-       register: pkg_remove
        ignore_errors: True
        loop:
          - { name: 'python-pip'}
-         - { name: 'qbittorrent' }         
-         
-     - debug: 
-         var: pkg_remove
-       when: pkg_remove is failed
+         - { name: 'qbittorrent' }  
