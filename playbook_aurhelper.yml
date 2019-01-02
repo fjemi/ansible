@@ -1,7 +1,7 @@
 # ansible playbook to install and remove aur helper packages
  
  - name: remove octopi, and install pamac/yay
-   hosts: localhost
+   hosts: local
    become: yes
    tasks:
    
@@ -12,7 +12,7 @@
        register: system_upgrade
        ignore_errors: True
      - debug: 
-         var: system_upgrade
+         var: system_upgrade.std_lines
        when: system_upgrade is failed
          
      - name: kill octopi and dependencies
@@ -29,7 +29,6 @@
          state: absent
          force: yes
          recurse: yes         
-       register: pkg_remove
        ignore_errors: True
        loop:
          - { name: 'octopi' }
@@ -38,46 +37,26 @@
          - { name: 'alpm-octopi-utils' }
          - { name: 'octopi-cachecleaner' }
          - { name: 'octopi-notifier-frameworks' }
-     - debug: 
-         var:
-           pkg_remove.stdout
-       when: pkg_remove is failed
        
      - name: install pamac and git packages
        pacman:
          name: "{{ item.name }}"
          state: present
-       register: pkg_install
        ignore_errors: True
        loop:
          - { name: pamac }
          - { name: git }
          - { name: base-devel }
-     - debug: 
-         var: pkg_install
-       when: pkg_install is failed 
-       
+         - { name: yay }
+         
      - name: clone the ansible-aur repository
+       become: yes
        git:
-         repo: "{{ item.repo }}"
-         dest: ~/.ansible/plugins/modules/aur
-         clone: no
-         update: yes
-       register: git_clone
+         repo: https://github.com/kewlfft/ansible-aur.git
+         dest: /usr/share/ansible/plugins/modules
+         update: no
+       register: cloned
        ignore_errors: True
-       loop: 
-         - { name: 'aur', repo: 'https://github.com/kewlfft/ansible-aur.git' }
-     - debug: 
-         var: git_clone
-       when: git_clone is failed       
-       
-#     - name: install yay using makepkg
-#       aur: 
-#          name: yay 
-#          use: makepkg 
-#          skip_installed: true
-#       become_user: aur_builder
-#       register: out
-#     - debug: 
-#         var: out
-#       when: out is failed 
+     - debug:
+         var: cloned
+       when: cloned is failed
