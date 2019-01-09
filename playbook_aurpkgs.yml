@@ -30,3 +30,4 @@
          - { name: 'python-undervolt' } 
          - { name: 'tor-browser-en' } 
          - { name: 'nodejs-resume-cli' }
+         - { name: 'hakuneko-desktop' }
