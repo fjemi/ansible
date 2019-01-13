@@ -1,2 +1,2 @@
-# ansible
-Ansible playbooks for personal workstations
+# Ansible Playbooks
+Ansible playbooks for automating the installation of application on my personal laptop
