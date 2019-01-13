@@ -43,6 +43,7 @@
          - { name: 'python-numpy' }
          - { name: 'python-pandas' }
          - { name: 'jupyter-notebook' }
+         - { name: 'python-virtualenv' }
          # virtualization
          - { name: 'qemu' }
          - { name: 'qemu-arch-extra' }
