@@ -1,13 +1,10 @@
-# This playbook uses the pacman module to upgrade the system
-hosts: local
-become: yes
-tasks:
-  - name: upgrade all packages
-    pacman:
-      update_cache: yes
-      upgrade: yes
-    register: system_upgrade
-    ignore_errors: True
-  - debug: 
-      var: system_upgrade.std_lines
-      when: system_upgrade is failed
+# Use the pacman module to upgrade the system
+- hosts: local
+  debugger: on_failed
+  tasks:
+    - name: upgrade all packages
+      become: yes
+      pacman:
+        update_cache: yes
+        upgrade: yes
+      ignore_errors: True
