@@ -1,0 +1,18 @@
+# Eexcute shell command to kill a process and its dependencies if the process is running
+- hosts: local
+  vars:
+    process: '' 
+  tasks:
+  - name: variable passed to process
+    fail:
+      msg: '"{{ process }}" does not exist, please try again'
+    when: process == '' or process is undefined
+  - name: kill process and dependencies
+    shell: pkill -f {{ process }}
+    register: result
+    ignore_errors: True
+  - debug:
+      var: result
+    
+# open okular and run this command to test
+# ansible-playbook roles/common/tasks/kill_process.yaml --extra-vars 'process=okular'
