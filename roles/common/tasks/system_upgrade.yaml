@@ -1,10 +1,13 @@
 # Use the pacman module to upgrade the system
 - hosts: local
-  debugger: on_failed
   tasks:
     - name: upgrade all packages
       become: yes
       pacman:
         update_cache: yes
         upgrade: yes
+      register: result
       ignore_errors: True
+    - debug:
+        var: result
+      when: result is failed
