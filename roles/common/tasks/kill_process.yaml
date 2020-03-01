@@ -14,6 +14,7 @@
   - debug:
       var: result
     when: result is failed
-    
-# open okular and run this command to test
-# ansible-playbook roles/common/tasks/kill_process.yaml --extra-vars 'process=okular'
+
+# To test, open an application and record it's [process_name], 
+# then run the following command
+# ansible-playbook roles/common/tasks/kill_process.yaml --extra-vars 'process=[process_name]'
