@@ -1,0 +1,20 @@
+# Intall a package using the pacman module
+- hosts: local
+  become: yes
+  vars:
+    package_name: None
+  tasks:
+    - name: Check if 
+      fail:
+        msg: 'package name is undefined' 
+      when: pacakge_name is undefined or package_name == ''
+    - name: Install package from repo
+      pacman:
+        name: package_name
+        state: present
+      ignore_errors: True
+      register: result
+    - debug:
+        vars: result
+      when: result is failed
+
