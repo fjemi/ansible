@@ -115,3 +115,6 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/kate,python,ansible
+
+# Ansible Vault
+/host_vars/**/psvault.yaml
