@@ -1,0 +1,21 @@
+# Test vault configuration by creating a list of passwords from an encrypted and plain file, and output the results in json format
+- hosts: localhost
+  vars_files:
+    - vault.yaml
+    - vars.yaml
+  vars:
+    passwds:
+      encrypted_root: "{{ vault_root_passwd }}"
+      encrypted_sudo: "{{ vault_sudo_passwd }}"
+      plain_root: "{{ root_passwd }}"
+      plain_sudo: "{{ sudo_passwd }}"
+  tasks:
+    - name: Retrieve passwords from encrypted and plain files
+      command: echo "{{ passwds | to_json }}"
+      register: result
+    - debug:
+        var: result.stdout
+      
+      
+# command to run this playbook        
+# ansible-playbook vault_test.yml --ask-vault-pass
