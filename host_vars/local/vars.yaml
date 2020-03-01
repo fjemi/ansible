@@ -1,0 +1,2 @@
+sudo_passwd: "{{ vault_sudo_passwd }}"
+root_passwd: "{{ vault_root_passwd }}"
