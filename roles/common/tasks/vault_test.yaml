@@ -1,8 +1,8 @@
 # Test vault configuration by creating a list of passwords from an encrypted and plain file, and output the results in json format
 - hosts: localhost
   vars_files:
-    - vault.yaml
-    - vars.yaml
+    - ../../../host_vars/local/vault.yaml
+    - ../../../host_vars/local/vars.yaml
   vars:
     passwds:
       encrypted_root: "{{ vault_root_passwd }}"
