@@ -1,2 +1,4 @@
-sudo_passwd: "{{ vault_sudo_passwd }}"
-root_passwd: "{{ vault_root_passwd }}"
+# root password
+ansible_become_password: "{{ vault_root_passwd }}"
+# sudo password
+ansible_sudo_pass: "{{ vault_sudo_passwd }}"
