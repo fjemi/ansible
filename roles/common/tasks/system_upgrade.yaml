@@ -1,13 +1,10 @@
 # Use the pacman module to upgrade the system
 - hosts: local
   tasks:
-    - name: upgrade all packages
-      become: yes
+    - name: Run the equivalent of "pacman -Syu" as a separate step
       pacman:
         update_cache: yes
         upgrade: yes
       register: result
-      ignore_errors: True
     - debug:
         var: result
-      when: result is failed

@@ -3,17 +3,11 @@
   vars:
     process_name: '' 
   tasks:
-  - name: Check if process_name is defined
-    fail:
-      msg: '"{{ process_name }}" does not exist, please try again'
-    when: process_name == '' or process_name is undefined
   - name: kill process and dependencies
     shell: pkill -f {{ process_name }}
     register: result
-    ignore_errors: True
   - debug:
       var: result
-    when: result is failed
 
 # To test, open an application and record it's [process_name], 
 # then run the following command
